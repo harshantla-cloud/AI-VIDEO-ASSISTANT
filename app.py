@@ -13,6 +13,29 @@ from core.rag_engine import ask_question
 
 load_dotenv()
 
+
+def get_secret(key):
+    """
+    Get API key from:
+    1. Environment variables / .env
+    2. Streamlit Cloud Secrets
+    """
+
+    value = os.getenv(key)
+
+    if value:
+        return value
+
+    try:
+        return st.secrets[key]
+    except Exception:
+        return None
+
+
+MISTRAL_API_KEY = get_secret("MISTRAL_API_KEY")
+SARVAM_API_KEY = get_secret("SARVAM_API_KEY")
+
+
 st.set_page_config(
     page_title="AI Video Assistant",
     page_icon="🎥",
@@ -125,17 +148,20 @@ with st.sidebar:
     language = st.selectbox(
         "Transcription mode",
         ["english", "hinglish"],
-        format_func=lambda x: "English — Whisper"
-        if x == "english"
-        else "Hinglish — Sarvam AI",
+        format_func=lambda x: (
+            "English — Whisper"
+            if x == "english"
+            else "Hinglish — Sarvam AI"
+        ),
     )
 
     st.divider()
 
     st.markdown("### 🔑 API Configuration")
 
-    mistral_status = bool(os.getenv("MISTRAL_API_KEY"))
-    sarvam_status = bool(os.getenv("SARVAM_API_KEY"))
+    # Check both .env/environment and Streamlit Cloud Secrets
+    mistral_status = bool(MISTRAL_API_KEY)
+    sarvam_status = bool(SARVAM_API_KEY)
 
     st.write(
         f"{'🟢' if mistral_status else '🔴'} Mistral API"
@@ -164,6 +190,7 @@ st.markdown(
 
 source = None
 uploaded_file = None
+
 
 if source_type == "YouTube URL":
 
@@ -202,12 +229,13 @@ process_clicked = st.button(
 if process_clicked:
 
     # ----------------------------------------------
-    # Validate API key
+    # Validate API keys
     # ----------------------------------------------
 
     if not mistral_status:
         st.error(
-            "MISTRAL_API_KEY is missing. Add it to your .env file."
+            "MISTRAL_API_KEY is missing. "
+            "Add it to Streamlit Cloud Secrets."
         )
         st.stop()
 
@@ -283,11 +311,15 @@ if process_clicked:
             except OSError:
                 pass
 
-        st.success("Your video has been analyzed successfully.")
+        st.success(
+            "Your video has been analyzed successfully."
+        )
 
     except Exception as e:
 
-        st.error("Something went wrong while processing the video.")
+        st.error(
+            "Something went wrong while processing the video."
+        )
 
         with st.expander("Technical details"):
             st.exception(e)
@@ -414,7 +446,9 @@ if result:
 
         with st.chat_message("assistant"):
 
-            with st.spinner("Searching the meeting transcript..."):
+            with st.spinner(
+                "Searching the meeting transcript..."
+            ):
 
                 try:
 
@@ -466,3 +500,5 @@ else:
         - 💬 Answer questions using RAG
         """
     )
+
+
