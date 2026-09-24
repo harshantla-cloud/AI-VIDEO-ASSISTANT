@@ -1,5 +1,6 @@
 # YouTube and Audio
-yt-dlp
+yt-dlp[default]
+yt-dlp-ejs
 pydub
 ffmpeg-python
 audioop-lts
