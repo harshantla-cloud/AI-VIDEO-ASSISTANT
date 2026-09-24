@@ -32,9 +32,28 @@ def get_secret(key):
         return None
 
 
+# --------------------------------------------------
+# API Keys
+# --------------------------------------------------
+
 MISTRAL_API_KEY = get_secret("MISTRAL_API_KEY")
 SARVAM_API_KEY = get_secret("SARVAM_API_KEY")
 
+
+# IMPORTANT:
+# Other project modules use os.getenv().
+# Therefore, copy Streamlit Secrets into environment variables.
+
+if MISTRAL_API_KEY:
+    os.environ["MISTRAL_API_KEY"] = MISTRAL_API_KEY
+
+if SARVAM_API_KEY:
+    os.environ["SARVAM_API_KEY"] = SARVAM_API_KEY
+
+
+# --------------------------------------------------
+# Streamlit Page Configuration
+# --------------------------------------------------
 
 st.set_page_config(
     page_title="AI Video Assistant",
@@ -51,6 +70,7 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+
         .main {
             padding-top: 1rem;
         }
@@ -97,6 +117,7 @@ st.markdown(
             border-radius: 10px;
             font-weight: 600;
         }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -159,7 +180,7 @@ with st.sidebar:
 
     st.markdown("### 🔑 API Configuration")
 
-    # Check .env first, then Streamlit Cloud Secrets
+    # Check API keys
     mistral_status = bool(MISTRAL_API_KEY)
     sarvam_status = bool(SARVAM_API_KEY)
 
@@ -233,17 +254,23 @@ if process_clicked:
     # ----------------------------------------------
 
     if not mistral_status:
+
         st.error(
             "MISTRAL_API_KEY is missing. "
             "Add it to Streamlit Cloud Secrets."
         )
+
         st.stop()
 
+
     if language == "hinglish" and not sarvam_status:
+
         st.error(
             "SARVAM_API_KEY is required for Hinglish transcription."
         )
+
         st.stop()
+
 
     # ----------------------------------------------
     # Prepare source
@@ -252,7 +279,11 @@ if process_clicked:
     if source_type == "YouTube URL":
 
         if not source:
-            st.warning("Please enter a valid YouTube URL.")
+
+            st.warning(
+                "Please enter a valid YouTube URL."
+            )
+
             st.stop()
 
         input_source = source
@@ -260,18 +291,28 @@ if process_clicked:
     else:
 
         if uploaded_file is None:
-            st.warning("Please upload a video or audio file.")
+
+            st.warning(
+                "Please upload a video or audio file."
+            )
+
             st.stop()
 
-        suffix = os.path.splitext(uploaded_file.name)[1]
+        suffix = os.path.splitext(
+            uploaded_file.name
+        )[1]
 
         with tempfile.NamedTemporaryFile(
             delete=False,
             suffix=suffix,
         ) as temp_file:
 
-            temp_file.write(uploaded_file.getbuffer())
+            temp_file.write(
+                uploaded_file.getbuffer()
+            )
+
             input_source = temp_file.name
+
 
     # ----------------------------------------------
     # Run AI Pipeline
@@ -284,11 +325,25 @@ if process_clicked:
             expanded=True,
         ) as status:
 
-            st.write("🎵 Extracting and processing audio...")
-            st.write("🎙️ Generating transcript...")
-            st.write("🧠 Creating AI summary...")
-            st.write("📋 Extracting action items and decisions...")
-            st.write("🔎 Building RAG knowledge base...")
+            st.write(
+                "🎵 Extracting and processing audio..."
+            )
+
+            st.write(
+                "🎙️ Generating transcript..."
+            )
+
+            st.write(
+                "🧠 Creating AI summary..."
+            )
+
+            st.write(
+                "📋 Extracting action items and decisions..."
+            )
+
+            st.write(
+                "🔎 Building RAG knowledge base..."
+            )
 
             result = run_pipeline(
                 input_source,
@@ -301,18 +356,28 @@ if process_clicked:
                 expanded=False,
             )
 
+
+        # Save result
         st.session_state.result = result
+
+        # Reset chat
         st.session_state.chat_history = []
 
+
+        # Remove temporary uploaded file
         if source_type == "Local Video / Audio":
+
             try:
                 os.remove(input_source)
+
             except OSError:
                 pass
+
 
         st.success(
             "Your video has been analyzed successfully."
         )
+
 
     except Exception as e:
 
@@ -321,6 +386,7 @@ if process_clicked:
         )
 
         with st.expander("Technical details"):
+
             st.exception(e)
 
 
@@ -335,6 +401,7 @@ if result:
 
     st.divider()
 
+
     # ----------------------------------------------
     # Title
     # ----------------------------------------------
@@ -344,7 +411,10 @@ if result:
         unsafe_allow_html=True,
     )
 
-    st.subheader(result["title"])
+    st.subheader(
+        result["title"]
+    )
+
 
     # ----------------------------------------------
     # Main Results
@@ -360,24 +430,56 @@ if result:
         ]
     )
 
+
     with tab1:
-        st.markdown("### Meeting Summary")
-        st.markdown(result["summary"])
+
+        st.markdown(
+            "### Meeting Summary"
+        )
+
+        st.markdown(
+            result["summary"]
+        )
+
 
     with tab2:
-        st.markdown("### Action Items")
-        st.markdown(result["action_items"])
+
+        st.markdown(
+            "### Action Items"
+        )
+
+        st.markdown(
+            result["action_items"]
+        )
+
 
     with tab3:
-        st.markdown("### Key Decisions")
-        st.markdown(result["key_decisions"])
+
+        st.markdown(
+            "### Key Decisions"
+        )
+
+        st.markdown(
+            result["key_decisions"]
+        )
+
 
     with tab4:
-        st.markdown("### Open Questions")
-        st.markdown(result["open_questions"])
+
+        st.markdown(
+            "### Open Questions"
+        )
+
+        st.markdown(
+            result["open_questions"]
+        )
+
 
     with tab5:
-        st.markdown("### Full Transcript")
+
+        st.markdown(
+            "### Full Transcript"
+        )
 
         st.text_area(
             "Transcript",
@@ -385,6 +487,7 @@ if result:
             height=500,
             label_visibility="collapsed",
         )
+
 
     # ----------------------------------------------
     # Download Transcript
@@ -396,6 +499,7 @@ if result:
         file_name="meeting_transcript.txt",
         mime="text/plain",
     )
+
 
     # ----------------------------------------------
     # RAG Chat
@@ -413,17 +517,34 @@ if result:
         "Answers are generated using the transcript RAG pipeline."
     )
 
+
+    # ----------------------------------------------
+    # Chat History
+    # ----------------------------------------------
+
     for message in st.session_state.chat_history:
 
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        with st.chat_message(
+            message["role"]
+        ):
+
+            st.markdown(
+                message["content"]
+            )
+
+
+    # ----------------------------------------------
+    # Chat Input
+    # ----------------------------------------------
 
     question = st.chat_input(
         "Ask something about the meeting..."
     )
 
+
     if question:
 
+        # Save user message
         st.session_state.chat_history.append(
             {
                 "role": "user",
@@ -431,9 +552,15 @@ if result:
             }
         )
 
-        with st.chat_message("user"):
-            st.markdown(question)
 
+        with st.chat_message("user"):
+
+            st.markdown(
+                question
+            )
+
+
+        # Generate answer
         with st.chat_message("assistant"):
 
             with st.spinner(
@@ -447,7 +574,9 @@ if result:
                         question,
                     )
 
-                    st.markdown(answer)
+                    st.markdown(
+                        answer
+                    )
 
                     st.session_state.chat_history.append(
                         {
@@ -456,13 +585,17 @@ if result:
                         }
                     )
 
+
                 except Exception as e:
 
                     st.error(
                         "Unable to generate an answer right now."
                     )
 
-                    with st.expander("Technical details"):
+                    with st.expander(
+                        "Technical details"
+                    ):
+
                         st.exception(e)
 
 
@@ -490,4 +623,3 @@ else:
         - 💬 Answer questions using RAG
         """
     )
-
