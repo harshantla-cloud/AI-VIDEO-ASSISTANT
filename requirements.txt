@@ -2,6 +2,7 @@
 yt-dlp
 pydub
 ffmpeg-python
+audioop-lts
 
 # Local Whisper
 openai-whisper
