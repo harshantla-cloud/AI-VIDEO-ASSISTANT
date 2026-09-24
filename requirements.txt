@@ -8,6 +8,7 @@ audioop-lts
 openai-whisper
 torch
 torchaudio
+torchvision
 
 # Translation
 deep-translator
