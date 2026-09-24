@@ -17,7 +17,7 @@ load_dotenv()
 def get_secret(key):
     """
     Get API key from:
-    1. Environment variables / .env
+    1. Environment variable / .env
     2. Streamlit Cloud Secrets
     """
 
@@ -159,7 +159,7 @@ with st.sidebar:
 
     st.markdown("### 🔑 API Configuration")
 
-    # Check both .env/environment and Streamlit Cloud Secrets
+    # Check .env first, then Streamlit Cloud Secrets
     mistral_status = bool(MISTRAL_API_KEY)
     sarvam_status = bool(SARVAM_API_KEY)
 
@@ -304,7 +304,6 @@ if process_clicked:
         st.session_state.result = result
         st.session_state.chat_history = []
 
-        # Remove temporary uploaded file
         if source_type == "Local Video / Audio":
             try:
                 os.remove(input_source)
@@ -362,31 +361,22 @@ if result:
     )
 
     with tab1:
-
         st.markdown("### Meeting Summary")
-
         st.markdown(result["summary"])
 
     with tab2:
-
         st.markdown("### Action Items")
-
         st.markdown(result["action_items"])
 
     with tab3:
-
         st.markdown("### Key Decisions")
-
         st.markdown(result["key_decisions"])
 
     with tab4:
-
         st.markdown("### Open Questions")
-
         st.markdown(result["open_questions"])
 
     with tab5:
-
         st.markdown("### Full Transcript")
 
         st.text_area(
@@ -500,5 +490,4 @@ else:
         - 💬 Answer questions using RAG
         """
     )
-
 
