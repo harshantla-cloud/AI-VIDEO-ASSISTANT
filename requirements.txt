@@ -1,0 +1,39 @@
+# YouTube and Audio
+yt-dlp
+pydub
+ffmpeg-python
+
+# Local Whisper
+openai-whisper
+torch
+torchaudio
+
+# Translation
+deep-translator
+
+# LangChain
+langchain
+langchain-core
+langchain-community
+langchain-mistralai
+langchain-text-splitters
+mistralai
+
+# Environment Variables
+python-dotenv
+
+# RAG and Vector Database
+chromadb
+langchain-chroma
+langchain-huggingface
+
+# HuggingFace Embeddings
+sentence-transformers
+transformers
+
+# Data / HTTP
+numpy
+requests
+
+# Streamlit UI
+streamlit
