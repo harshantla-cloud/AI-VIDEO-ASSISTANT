@@ -8,8 +8,6 @@ audioop-lts
 # Local Whisper
 openai-whisper
 torch
-torchaudio
-torchvision
 
 # Translation
 deep-translator
