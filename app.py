@@ -1,5 +1,6 @@
 import os
 import tempfile
+
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -12,11 +13,7 @@ load_dotenv()
 
 
 def get_secret(key):
-    """
-    Get API key from:
-    1. Environment variable / .env
-    2. Streamlit Cloud Secrets
-    """
+    """Get API key from environment variables or Streamlit Secrets."""
 
     value = os.getenv(key)
 
@@ -36,11 +33,7 @@ def get_secret(key):
 MISTRAL_API_KEY = get_secret("MISTRAL_API_KEY")
 SARVAM_API_KEY = get_secret("SARVAM_API_KEY")
 
-
-# IMPORTANT:
-# Other project modules use os.getenv().
-# Therefore, copy Streamlit Secrets into environment variables.
-
+# Other project modules use os.getenv()
 if MISTRAL_API_KEY:
     os.environ["MISTRAL_API_KEY"] = MISTRAL_API_KEY
 
@@ -177,7 +170,6 @@ with st.sidebar:
 
     st.markdown("### 🔑 API Configuration")
 
-    # Check API keys
     mistral_status = bool(MISTRAL_API_KEY)
     sarvam_status = bool(SARVAM_API_KEY)
 
@@ -245,9 +237,10 @@ process_clicked = st.button(
 
 
 if process_clicked:
+
+    # Heavy modules are imported only when needed
     from main import run_pipeline
     from core.rag_engine import ask_question
-
 
     # ----------------------------------------------
     # Validate API keys
@@ -262,7 +255,6 @@ if process_clicked:
 
         st.stop()
 
-
     if language == "hinglish" and not sarvam_status:
 
         st.error(
@@ -270,7 +262,6 @@ if process_clicked:
         )
 
         st.stop()
-
 
     # ----------------------------------------------
     # Prepare source
@@ -312,7 +303,6 @@ if process_clicked:
             )
 
             input_source = temp_file.name
-
 
     # ----------------------------------------------
     # Run AI Pipeline
@@ -356,13 +346,11 @@ if process_clicked:
                 expanded=False,
             )
 
-
         # Save result
         st.session_state.result = result
 
         # Reset chat
         st.session_state.chat_history = []
-
 
         # Remove temporary uploaded file
         if source_type == "Local Video / Audio":
@@ -373,11 +361,9 @@ if process_clicked:
             except OSError:
                 pass
 
-
         st.success(
             "Your video has been analyzed successfully."
         )
-
 
     except Exception as e:
 
@@ -401,7 +387,6 @@ if result:
 
     st.divider()
 
-
     # ----------------------------------------------
     # Title
     # ----------------------------------------------
@@ -414,7 +399,6 @@ if result:
     st.subheader(
         result["title"]
     )
-
 
     # ----------------------------------------------
     # Main Results
@@ -430,7 +414,6 @@ if result:
         ]
     )
 
-
     with tab1:
 
         st.markdown(
@@ -440,7 +423,6 @@ if result:
         st.markdown(
             result["summary"]
         )
-
 
     with tab2:
 
@@ -452,7 +434,6 @@ if result:
             result["action_items"]
         )
 
-
     with tab3:
 
         st.markdown(
@@ -463,7 +444,6 @@ if result:
             result["key_decisions"]
         )
 
-
     with tab4:
 
         st.markdown(
@@ -473,7 +453,6 @@ if result:
         st.markdown(
             result["open_questions"]
         )
-
 
     with tab5:
 
@@ -488,7 +467,6 @@ if result:
             label_visibility="collapsed",
         )
 
-
     # ----------------------------------------------
     # Download Transcript
     # ----------------------------------------------
@@ -499,7 +477,6 @@ if result:
         file_name="meeting_transcript.txt",
         mime="text/plain",
     )
-
 
     # ----------------------------------------------
     # RAG Chat
@@ -517,7 +494,6 @@ if result:
         "Answers are generated using the transcript RAG pipeline."
     )
 
-
     # ----------------------------------------------
     # Chat History
     # ----------------------------------------------
@@ -532,7 +508,6 @@ if result:
                 message["content"]
             )
 
-
     # ----------------------------------------------
     # Chat Input
     # ----------------------------------------------
@@ -540,7 +515,6 @@ if result:
     question = st.chat_input(
         "Ask something about the meeting..."
     )
-
 
     if question:
 
@@ -552,13 +526,11 @@ if result:
             }
         )
 
-
         with st.chat_message("user"):
 
             st.markdown(
                 question
             )
-
 
         # Generate answer
         with st.chat_message("assistant"):
@@ -584,7 +556,6 @@ if result:
                             "content": answer,
                         }
                     )
-
 
                 except Exception as e:
 
