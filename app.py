@@ -3,9 +3,6 @@ import tempfile
 import streamlit as st
 from dotenv import load_dotenv
 
-from main import run_pipeline
-from core.rag_engine import ask_question
-
 
 # --------------------------------------------------
 # Configuration
@@ -248,6 +245,9 @@ process_clicked = st.button(
 
 
 if process_clicked:
+    from main import run_pipeline
+    from core.rag_engine import ask_question
+
 
     # ----------------------------------------------
     # Validate API keys
